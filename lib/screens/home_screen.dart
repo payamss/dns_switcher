@@ -1,5 +1,6 @@
-import 'package:dns_switcher/widgets/current_dns_widget.dart';
+import 'package:dns_switcher/widgets/current_dns_per_interface_widget.dart';
 import 'package:dns_switcher/widgets/dns_checkbox_group.dart';
+import 'package:dns_switcher/widgets/dns_interface_selector.dart';
 import 'package:dns_switcher/widgets/system_status_widget.dart';
 import 'package:flutter/material.dart';
 import '../services/dns_service.dart';
@@ -16,7 +17,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final service = DnsService();
   List<String> currentDns = [];
-
+  Map<String, List<String>> _perInterfaceDns = {};
+  Map<String, List<String>> get perInterfaceDns => _perInterfaceDns;
   @override
   void initState() {
     super.initState();
@@ -25,8 +27,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadInitialState() async {
     await service.loadPresets();
-    final dns = await service.getCurrentDns();
-    setState(() => currentDns = dns);
+    await service.loadInterfaces();
+    final perInterface = await service.getCurrentDnsPerInterface();
+    setState(() => _perInterfaceDns = perInterface);
   }
 
   Future<void> _onApply() async {
@@ -46,11 +49,16 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.all(12),
         child: ListView(
           children: [
-            const SystemStatusWidget(), // ✅ در بالا نمایش داده می‌شود
+            const SystemStatusWidget(),
             const SizedBox(height: 10),
-            CurrentDnsWidget(dnsList: currentDns),
+            CurrentDnsPerInterfaceWidget(
+              dnsMap: perInterfaceDns,
+              onReload: _loadInitialState,
+            ),
             const SizedBox(height: 10),
-            DnsSelectorWidget(service: service), // Dropdown selector
+            DnsInterfaceSelector(service: service),
+            const SizedBox(height: 10),
+            DnsSelectorWidget(service: service),
             const SizedBox(height: 10),
             DnsCheckboxGroup(service: service),
             DnsInputField(service: service),
