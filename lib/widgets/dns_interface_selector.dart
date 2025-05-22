@@ -31,6 +31,33 @@ class DnsInterfaceSelector extends StatelessWidget {
                   }).toList(),
                   onChanged: (val) => service.selectedInterface.value = val,
                 ),
+                const SizedBox(height: 6),
+                ValueListenableBuilder<List<String>>(
+                  valueListenable: service.interfaceDnsPreview,
+                  builder: (_, dnsList, __) {
+                    return Row(
+                      children: [
+                        const Icon(
+                          Icons.info_outline,
+                          size: 18,
+                          color: Colors.grey,
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            dnsList.isEmpty
+                                ? "No DNS assigned"
+                                : dnsList.join(', '),
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
               ],
             );
           },

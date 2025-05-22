@@ -29,6 +29,10 @@ class _HomeScreenState extends State<HomeScreen> {
     await service.loadPresets();
     await service.loadInterfaces();
     final perInterface = await service.getCurrentDnsPerInterface();
+    if (service.selectedInterface.value != null) {
+      final dns = perInterface[service.selectedInterface.value!] ?? [];
+      service.interfaceDnsPreview.value = dns;
+    }
     setState(() => _perInterfaceDns = perInterface);
   }
 
