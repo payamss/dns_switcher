@@ -11,7 +11,7 @@ class SystemStatusWidget extends StatefulWidget {
 }
 
 class _SystemStatusWidgetState extends State<SystemStatusWidget> {
-  List<String> localIps = ['Loading...'];
+  List<MapEntry<String, String>> localIps = [];
   String publicIpv4 = 'Loading...';
   String publicIpv6 = 'Loading...';
   String publicIpv4Location = 'Loading...';
@@ -40,20 +40,21 @@ class _SystemStatusWidgetState extends State<SystemStatusWidget> {
     });
   }
 
-  Future<List<String>> _getAllLocalIps() async {
+  Future<List<MapEntry<String, String>>> _getAllLocalIps() async {
     final interfaces = await NetworkInterface.list(
       type: InternetAddressType.any,
     );
-    final ips = <String>[];
+    final ips = <MapEntry<String, String>>[];
     for (var interface in interfaces) {
       for (var addr in interface.addresses) {
         if (!addr.isLoopback) {
-          final emoji = addr.type == InternetAddressType.IPv4 ? '🔹' : '🟣';
-          ips.add('$emoji ${interface.name}: ${addr.address}');
+          ips.add(
+            MapEntry('${interface.name} (${addr.type.name})', addr.address),
+          );
         }
       }
     }
-    return ips.isEmpty ? ['⚠️ Not found'] : ips;
+    return ips;
   }
 
   Future<String?> _getPublicIp(String url) async {
@@ -138,37 +139,75 @@ class _SystemStatusWidgetState extends State<SystemStatusWidget> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSection(
-          "Local IPs",
-          Icons.lan,
-          localIps.map((ip) {
-            final parts = ip.split(': ');
-            return Tooltip(
-              message: parts.length > 1 ? parts.last : '',
-              child: Text(ip, style: const TextStyle(fontSize: 14)),
-            );
-          }).toList(),
-        ),
-        _buildSection("Public IPs", Icons.public, [
-          Tooltip(
-            message: publicIpv4Location,
-            child: Row(
-              children: [
-                const Icon(Icons.language, size: 18),
-                const SizedBox(width: 6),
-                Text("IPv4: $publicIpv4"),
-              ],
-            ),
+        _buildSection("Local IPs", Icons.lan, [
+          Row(
+            children: const [
+              Expanded(
+                child: Text(
+                  "Interface",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  "IP Address",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
           ),
-          Tooltip(
-            message: publicIpv6Location,
-            child: Row(
-              children: [
-                const Icon(Icons.language, size: 18),
-                const SizedBox(width: 6),
-                Text("IPv6: $publicIpv6"),
-              ],
+          const SizedBox(height: 6),
+          if (localIps.isEmpty)
+            const Text("No local IPs found.")
+          else
+            ...localIps.map(
+              (entry) => Row(
+                children: [
+                  Expanded(child: Text(entry.key)),
+                  Expanded(child: Text(entry.value)),
+                ],
+              ),
             ),
+        ]),
+
+        _buildSection("Public IPs", Icons.public, [
+          Row(
+            children: const [
+              Expanded(
+                child: Text(
+                  "Type",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  "Address",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  "Location",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              const Expanded(child: Text("IPv4")),
+              Expanded(child: Text(publicIpv4)),
+              Expanded(child: Text(publicIpv4Location)),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              const Expanded(child: Text("IPv6")),
+              Expanded(child: Text(publicIpv6)),
+              Expanded(child: Text(publicIpv6Location)),
+            ],
           ),
         ]),
       ],
