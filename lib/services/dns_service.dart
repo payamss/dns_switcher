@@ -29,7 +29,17 @@ class DnsService {
   Future<void> loadInterfaces() async {
     final list = await platformChanger.getAvailableInterfaces();
     _interfaces.value = list;
-    if (list.isNotEmpty) selectedInterface.value = list.first;
+
+    final preferred = list.firstWhere(
+      (e) =>
+          e.toLowerCase().contains("ethernet") ||
+          e.toLowerCase().contains("wi-fi"),
+      orElse: () => list.isNotEmpty ? list.first : '',
+    );
+
+    if (preferred.isNotEmpty) {
+      selectedInterface.value = preferred;
+    }
   }
 
   void toggle(String ip, String version, bool selected) {
