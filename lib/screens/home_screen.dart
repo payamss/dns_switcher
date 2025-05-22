@@ -1,8 +1,8 @@
+import 'package:dns_switcher/widgets/current_dns_widget.dart';
 import 'package:dns_switcher/widgets/dns_checkbox_group.dart';
 import 'package:dns_switcher/widgets/system_status_widget.dart';
 import 'package:flutter/material.dart';
 import '../services/dns_service.dart';
-import '../widgets/dns_checkbox_list.dart';
 import '../widgets/dns_input_field.dart';
 import '../widgets/dns_selector_widget.dart';
 
@@ -48,10 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             const SystemStatusWidget(), // ✅ در بالا نمایش داده می‌شود
             const SizedBox(height: 10),
-            Text(
-              "Current DNS: ${currentDns.join(', ')}",
-              style: const TextStyle(fontSize: 16),
-            ),
+            CurrentDnsWidget(dnsList: currentDns),
             const SizedBox(height: 10),
             DnsSelectorWidget(service: service), // Dropdown selector
             const SizedBox(height: 10),
