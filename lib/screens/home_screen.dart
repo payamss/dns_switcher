@@ -28,6 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _loadInitialState() async {
     await service.loadPresets();
     await service.loadInterfaces();
+    await service.loadCustomDnsFromPrefs();
     final perInterface = await service.getCurrentDnsPerInterface();
     if (service.selectedInterface.value != null) {
       final dns = perInterface[service.selectedInterface.value!] ?? [];
@@ -53,8 +54,6 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.all(12),
         child: ListView(
           children: [
-            const SystemStatusWidget(),
-            const SizedBox(height: 10),
             CurrentDnsPerInterfaceWidget(
               dnsMap: perInterfaceDns,
               onReload: _loadInitialState,
@@ -72,6 +71,8 @@ class _HomeScreenState extends State<HomeScreen> {
               icon: const Icon(Icons.dns),
               label: const Text("Apply DNS"),
             ),
+            const SystemStatusWidget(),
+            const SizedBox(height: 10),
           ],
         ),
       ),

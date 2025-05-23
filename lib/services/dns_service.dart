@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../models/dns_preset.dart';
 import '../platform/windows_dns.dart';
 
@@ -21,6 +23,9 @@ class DnsService {
   ValueListenable<List<String>> get interfaces => _interfaces;
 
   final ValueNotifier<List<String>> interfaceDnsPreview = ValueNotifier([]);
+
+  static const _customIPv4Key = 'custom_ipv4';
+  static const _customIPv6Key = 'custom_ipv6';
 
   Future<void> loadInterfaces() async {
     final list = await platformChanger.getAvailableInterfaces();
@@ -51,11 +56,22 @@ class DnsService {
     final list = jsonDecode(data) as List;
     presets = list.map((e) => DnsPreset.fromJson(e)).toList();
 
-    // Ensure selectedPresetLabel is valid
     if (selectedPresetLabel.value == null ||
         !presets.any((p) => p.label == selectedPresetLabel.value)) {
       selectedPresetLabel.value = null;
     }
+  }
+
+  Future<void> loadCustomDnsFromPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    customIPv4.value = prefs.getString(_customIPv4Key) ?? '';
+    customIPv6.value = prefs.getString(_customIPv6Key) ?? '';
+  }
+
+  Future<void> saveCustomDnsToPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_customIPv4Key, customIPv4.value);
+    await prefs.setString(_customIPv6Key, customIPv6.value);
   }
 
   void toggle(String ip, String version, bool selected) {
@@ -85,12 +101,14 @@ class DnsService {
   Future<void> applySelected() async {
     final ipv4 = [...selectedIPv4.value];
     final ipv6 = [...selectedIPv6.value];
+
     if (customIPv4.value.trim().isNotEmpty) ipv4.add(customIPv4.value.trim());
     if (customIPv6.value.trim().isNotEmpty) ipv6.add(customIPv6.value.trim());
 
     final iface = selectedInterface.value;
     if (iface == null || iface.isEmpty) return;
 
+    await saveCustomDnsToPrefs(); // ⬅️ Save on apply
     await platformChanger.setDns(ipv4, ipv6, interface: iface);
   }
 

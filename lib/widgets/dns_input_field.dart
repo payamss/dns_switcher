@@ -8,23 +8,15 @@ class Ipv4InputFormatter extends TextInputFormatter {
     TextEditingValue oldValue,
     TextEditingValue newValue,
   ) {
-    // Remove all non-digit characters
     String digits = newValue.text.replaceAll(RegExp(r'\D'), '');
-
-    // Split into octets
     List<String> octets = [];
+
     for (int i = 0; i < digits.length && octets.length < 4; i += 3) {
       int end = (i + 3 > digits.length) ? digits.length : i + 3;
       octets.add(digits.substring(i, end));
     }
 
-    // Join with dots, but limit to 4 octets
     String formatted = octets.join('.');
-    if (octets.length > 4) {
-      formatted = octets.sublist(0, 4).join('.');
-    }
-
-    // Set the new cursor position
     int selectionIndex = formatted.length;
 
     return TextEditingValue(
@@ -50,6 +42,7 @@ class _DnsInputFieldState extends State<DnsInputField> {
   @override
   void initState() {
     super.initState();
+
     ipv4Controller = TextEditingController(
       text: widget.service.customIPv4.value,
     );
@@ -57,22 +50,37 @@ class _DnsInputFieldState extends State<DnsInputField> {
       text: widget.service.customIPv6.value,
     );
 
-    widget.service.customIPv4.addListener(() {
-      if (ipv4Controller.text != widget.service.customIPv4.value) {
-        ipv4Controller.text = widget.service.customIPv4.value;
-      }
+    // Listen to changes in ValueNotifier and update controllers
+    widget.service.customIPv4.addListener(_updateIpv4);
+    widget.service.customIPv6.addListener(_updateIpv6);
+
+    // Also listen to controller changes and update ValueNotifier
+    ipv4Controller.addListener(() {
+      widget.service.customIPv4.value = ipv4Controller.text;
     });
-    widget.service.customIPv6.addListener(() {
-      if (ipv6Controller.text != widget.service.customIPv6.value) {
-        ipv6Controller.text = widget.service.customIPv6.value;
-      }
+    ipv6Controller.addListener(() {
+      widget.service.customIPv6.value = ipv6Controller.text;
     });
+  }
+
+  void _updateIpv4() {
+    if (ipv4Controller.text != widget.service.customIPv4.value) {
+      ipv4Controller.text = widget.service.customIPv4.value;
+    }
+  }
+
+  void _updateIpv6() {
+    if (ipv6Controller.text != widget.service.customIPv6.value) {
+      ipv6Controller.text = widget.service.customIPv6.value;
+    }
   }
 
   @override
   void dispose() {
     ipv4Controller.dispose();
     ipv6Controller.dispose();
+    widget.service.customIPv4.removeListener(_updateIpv4);
+    widget.service.customIPv6.removeListener(_updateIpv6);
     super.dispose();
   }
 
@@ -87,8 +95,7 @@ class _DnsInputFieldState extends State<DnsInputField> {
         ),
         TextField(
           controller: ipv4Controller,
-          onChanged: (val) => widget.service.customIPv4.value = val,
-          decoration: InputDecoration(hintText: 'Enter IPv4 address'),
+          decoration: const InputDecoration(hintText: 'Enter IPv4 address'),
           inputFormatters: [Ipv4InputFormatter()],
         ),
         const SizedBox(height: 10),
@@ -98,8 +105,7 @@ class _DnsInputFieldState extends State<DnsInputField> {
         ),
         TextField(
           controller: ipv6Controller,
-          onChanged: (val) => widget.service.customIPv6.value = val,
-          decoration: InputDecoration(hintText: 'Enter IPv6 address'),
+          decoration: const InputDecoration(hintText: 'Enter IPv6 address'),
         ),
       ],
     );
