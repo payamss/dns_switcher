@@ -1,13 +1,13 @@
-name: Build & Release Windows EXE
+name: Build & Release Windows App
 
 on:
   push:
     tags:
-      - 'v*'  # Run only on version tags like v1.0.0
+      - 'v*'  # Trigger only on version tags like v1.0.0
 
 jobs:
   build:
-    name: Build Windows .exe
+    name: Build Windows Executable
     runs-on: windows-latest
 
     steps:
@@ -26,12 +26,15 @@ jobs:
       - name: Enable Windows support
         run: flutter config --enable-windows-desktop
 
-      - name: Build Windows EXE
-        run: flutter build windows
+      - name: Build Windows executable
+        run: flutter build windows --release
 
-      - name: Upload .exe to GitHub Release
+      - name: Zip compiled app
+        run: Compress-Archive -Path build\windows\runner\Release\* -DestinationPath dns_switcher_windows.zip
+
+      - name: Upload release
         uses: softprops/action-gh-release@v1
         with:
-          files: build/windows/x64/runner/Release/dns_switcher.exe
+          files: dns_switcher_windows.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
