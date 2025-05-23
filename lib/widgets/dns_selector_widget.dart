@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../services/dns_service.dart';
-import '../models/dns_preset.dart';
 
 class DnsSelectorWidget extends StatelessWidget {
   final DnsService service;
@@ -9,26 +8,36 @@ class DnsSelectorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        ValueListenableBuilder<DnsPreset?>(
-          valueListenable: service.selectedPreset,
-          builder: (_, selected, __) {
-            return DropdownButton<DnsPreset>(
-              value: selected,
+    return ValueListenableBuilder<String?>(
+      valueListenable: service.selectedPresetLabel,
+      builder: (_, selectedLabel, __) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Select DNS Provider",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 6),
+            DropdownButton<String>(
               isExpanded: true,
-              hint: const Text("Select DNS Provider"),
+              value: selectedLabel,
+              hint: const Text("Choose provider"),
               items: service.presets.map((preset) {
-                return DropdownMenuItem<DnsPreset>(
-                  value: preset,
+                return DropdownMenuItem<String>(
+                  value: preset.label,
                   child: Text(preset.label),
                 );
               }).toList(),
-              onChanged: service.selectPreset,
-            );
-          },
-        ),
-      ],
+              onChanged: (value) {
+                if (value != null) {
+                  service.selectPresetByLabel(value);
+                }
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

@@ -9,7 +9,7 @@ class DnsCheckboxGroup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
-      valueListenable: service.selectedPreset,
+      valueListenable: service.selectedPresetLabel,
       builder: (_, preset, __) {
         if (preset == null) return const SizedBox.shrink();
 
@@ -20,26 +20,32 @@ class DnsCheckboxGroup extends StatelessWidget {
               "Select IPs:",
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
-            ...preset.ipv4.map(
-              (ip) => ValueListenableBuilder<Set<String>>(
-                valueListenable: service.selectedIPv4,
-                builder: (_, selected, __) => CheckboxListTile(
-                  title: Text("IPv4: $ip"),
-                  value: selected.contains(ip),
-                  onChanged: (val) => service.toggle(ip, 'v4', val!),
+            ...service.presets
+                .firstWhere((e) => e.label == preset)
+                .ipv4
+                .map(
+                  (ip) => ValueListenableBuilder<Set<String>>(
+                    valueListenable: service.selectedIPv4,
+                    builder: (_, selected, __) => CheckboxListTile(
+                      title: Text("IPv4: $ip"),
+                      value: selected.contains(ip),
+                      onChanged: (val) => service.toggle(ip, 'v4', val!),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            ...preset.ipv6.map(
-              (ip) => ValueListenableBuilder<Set<String>>(
-                valueListenable: service.selectedIPv6,
-                builder: (_, selected, __) => CheckboxListTile(
-                  title: Text("IPv6: $ip"),
-                  value: selected.contains(ip),
-                  onChanged: (val) => service.toggle(ip, 'v6', val!),
+            ...service.presets
+                .firstWhere((e) => e.label == preset)
+                .ipv6
+                .map(
+                  (ip) => ValueListenableBuilder<Set<String>>(
+                    valueListenable: service.selectedIPv6,
+                    builder: (_, selected, __) => CheckboxListTile(
+                      title: Text("IPv6: $ip"),
+                      value: selected.contains(ip),
+                      onChanged: (val) => service.toggle(ip, 'v6', val!),
+                    ),
+                  ),
                 ),
-              ),
-            ),
           ],
         );
       },

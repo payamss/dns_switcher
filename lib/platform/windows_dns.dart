@@ -77,10 +77,7 @@ class WindowsDnsChanger implements DnsPlatformInterface {
     required String interface,
   }) async {
     try {
-      if (ipv4.isEmpty) return false;
-
-      // Set the first DNS
-      await Process.run('netsh', [
+      final result = await Process.run('netsh', [
         'interface',
         'ip',
         'set',
@@ -90,7 +87,9 @@ class WindowsDnsChanger implements DnsPlatformInterface {
         ipv4.first,
       ]);
 
-      // Add additional DNS
+      debugPrint("netsh output: ${result.stdout}");
+      debugPrint("netsh error: ${result.stderr}");
+
       for (int i = 1; i < ipv4.length; i++) {
         await Process.run('netsh', [
           'interface',
