@@ -18,8 +18,8 @@ class CurrentDnsWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: const [
+            const Row(
+              children: [
                 Icon(Icons.dns, size: 20),
                 SizedBox(width: 8),
                 Text(
@@ -30,9 +30,7 @@ class CurrentDnsWidget extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             if (hasData)
-              ...dnsList
-                  .where((e) => e.trim().isNotEmpty)
-                  .map(
+              ...dnsList.where((e) => e.trim().isNotEmpty).map(
                     (e) => ListTile(
                       dense: true,
                       leading: const Icon(Icons.arrow_right, size: 20),

@@ -140,8 +140,8 @@ class _SystemStatusWidgetState extends State<SystemStatusWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSection("Local IPs", Icons.lan, [
-          Row(
-            children: const [
+          const Row(
+            children: [
               Expanded(
                 child: Text(
                   "Interface",
@@ -169,10 +169,9 @@ class _SystemStatusWidgetState extends State<SystemStatusWidget> {
               ),
             ),
         ]),
-
         _buildSection("Public IPs", Icons.public, [
-          Row(
-            children: const [
+          const Row(
+            children: [
               Expanded(
                 child: Text(
                   "Type",

@@ -44,8 +44,8 @@ class CurrentDnsPerInterfaceWidget extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-            Row(
-              children: const [
+            const Row(
+              children: [
                 Expanded(
                   child: Text(
                     "Interface",
@@ -79,9 +79,8 @@ class CurrentDnsPerInterfaceWidget extends StatelessWidget {
                             )
                           : Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: dnsList
-                                  .map((dns) => Text(dns))
-                                  .toList(),
+                              children:
+                                  dnsList.map((dns) => Text(dns)).toList(),
                             ),
                     ),
                   ],

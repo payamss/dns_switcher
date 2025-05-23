@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:dns_switcher/widgets/current_dns_per_interface_widget.dart';
 import 'package:dns_switcher/widgets/dns_checkbox_group.dart';
 import 'package:dns_switcher/widgets/dns_interface_selector.dart';
