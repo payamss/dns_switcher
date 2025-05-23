@@ -1,0 +1,40 @@
+name: Build & Release Windows App
+
+on:
+  push:
+    tags:
+      - 'v*'  # Only run on version tags like v1.0.0
+
+jobs:
+  build:
+    name: Build Windows Executable
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.32.2'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Enable Windows support
+        run: flutter config --enable-windows-desktop
+
+      - name: Build Windows executable
+        run: flutter build windows
+
+      - name: Zip Windows Build
+        run: Compress-Archive -Path build\windows\x64\release\ -DestinationPath dns_switcher_windows.zip
+
+      - name: Create Release and Upload
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dns_switcher_windows.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
